@@ -1,6 +1,7 @@
 package ru.example.parallelism2802
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import ru.example.parallelism2802.ui.theme.Parallelism2802Theme
@@ -41,9 +43,31 @@ class MainActivity : ComponentActivity() {
                     }
                 ).start()
                 runBlocking(Dispatchers.IO){
-                    launch{
+                    var sum1 = 0
+                    var sum2 = 0
+                    var sum3 = 0
+                    var sum4 = 0
 
+                    val time1 = System.currentTimeMillis()
+                    val job1 = launch{
+                        sum1 = sum(1, 10000)
                     }
+                    val job2 = launch{
+                        sum2 = sum(10001, 20000)
+                    }
+                    val job3 =launch{
+                        sum3 = sum(20001, 30000)
+                    }
+                   joinAll(job1, job2, job3)
+                   val time2 = System.currentTimeMillis()
+                   val job4 = launch{
+                       sum4 = sum(1, 30000)
+                   }
+                    joinAll(job4)
+
+                   val time3 = System.currentTimeMillis()
+                    Log.d("Otvet", "${sum1 + sum2 + sum3} ${time2-time1}")
+                    Log.d("Otvet2", "${sum4} ${time3-time2}")
                 }
                 // A surface container using the 'background' color from the theme
                 Surface(
